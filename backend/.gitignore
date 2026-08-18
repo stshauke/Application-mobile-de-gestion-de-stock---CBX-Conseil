@@ -1,0 +1,9 @@
+# Dépendances installées (regénérées via "npm install")
+node_modules/
+
+# Variables d'environnement contenant des informations sensibles
+.env
+
+# Logs
+npm-debug.log*
+*.log
