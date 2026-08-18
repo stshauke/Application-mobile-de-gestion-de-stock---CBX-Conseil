@@ -29,7 +29,7 @@ Application mobile de gestion de stock pour un entrepôt fictif : consultation d
 
 1. Cloner le dépôt
 ```
-git clone <URL_DU_DEPOT>
+git clone https://github.com/stshauke/Application-mobile-de-gestion-de-stock---CBX-Conseil.git
 cd backend
 ```
 
