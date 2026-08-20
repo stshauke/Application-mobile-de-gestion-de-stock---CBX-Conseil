@@ -13,17 +13,19 @@ Application mobile de gestion de stock pour un entrepôt fictif : consultation d
 - Backend : Node.js + Express, standard et simple à faire tourner en local.
 - Base de données : MySQL avec le driver `mysql2` (requêtes préparées, async/await).
 - Pas d'ORM : une seule table principale, un ORM n'apporte pas de bénéfice ici.
-- Frontend : Expo, démarrage avec `npx expo start`, pas besoin d'Android Studio / Xcode.
-- Langage frontend : TypeScript.
-- Navigation : React Navigation.
-- Icônes : Font Awesome / Bootstrap Icons uniquement.
+- Frontend : Expo, démarrage avec `npx expo start`, pas besoin d'Android Studio / Xcode pour tester (Expo Go), utilisable aussi avec un émulateur.
+- Langage frontend : TypeScript strict.
+- Navigation : React Navigation (native stack).
+- Gestion d'état : `useState` / `useMemo`, pas de librairie externe (état simple, une seule liste).
+- Icônes : `@expo/vector-icons` (Font Awesome 5), aucune icône générée par IA.
+- Notifications locales : `expo-notifications`, compatible Expo Go (seules les notifications push distantes nécessitent un development build depuis le SDK 53).
 
 ## Prérequis
 
 - Node.js >= 18 et npm
 - MySQL >= 8 installé et démarré en local
 - Git
-- Pour le frontend : l'application Expo Go sur téléphone (Android/iOS), ou un émulateur
+- Android Studio avec un émulateur configuré (AVD), ou Expo Go sur téléphone
 
 ## Installation et lancement — Backend
 
@@ -113,7 +115,28 @@ Règles de validation :
 
 ## Installation et lancement — Frontend
 
-À compléter à l'étape 3.
+1. Ouvrir l'émulateur Android (Android Studio > Device Manager > lancer un appareil virtuel déjà créé).
+
+2. Installer les dépendances
+```
+cd frontend
+npm install
+```
+
+3. Démarrer le backend dans un autre terminal (le frontend en a besoin)
+```
+cd backend
+npm run dev
+```
+
+4. Vérifier l'URL de l'API dans `frontend/src/services/api.ts` : `10.0.2.2` est l'alias standard vers `localhost` du PC depuis un émulateur Android. Pas de changement nécessaire si vous utilisez l'émulateur Android par défaut.
+
+5. Démarrer Expo
+```
+npx expo start
+```
+
+6. Dans le terminal Expo, appuyer sur `a` pour lancer sur l'émulateur Android, `i` pour iOS (macOS uniquement), ou scanner le QR code avec Expo Go sur téléphone.
 
 ## Structure du projet
 
@@ -136,13 +159,42 @@ stock-app/
 │       └── middlewares/
 │           └── validateProduct.js
 └── frontend/
+    ├── App.tsx
+    ├── index.ts
+    ├── package.json
+    ├── tsconfig.json
+    └── src/
+        ├── types/
+        │   └── index.ts
+        ├── services/
+        │   └── api.ts
+        ├── utils/
+        │   └── stockStatus.ts
+        ├── navigation/
+        │   └── AppNavigator.tsx
+        ├── components/
+        │   ├── ProductCard.tsx
+        │   ├── SearchFilterBar.tsx
+        │   ├── StockMovementModal.tsx
+        │   └── FormField.tsx
+        └── screens/
+            ├── ProductListScreen.tsx
+            ├── ProductDetailScreen.tsx
+            ├── ProductFormScreen.tsx
+            └── DashboardScreen.tsx
 ```
+
+Le fichier `src/services/notifications.ts` gère la demande de permission et la programmation des notifications locales.
 
 ## Avancement
 
 - [x] Étape 1 — Backend : GET /api/products (liste + filtres)
 - [x] Étape 2 — Backend : GET /:id, POST, PUT, PATCH stock, DELETE
-- [ ] Étape 3 — Frontend : écran liste + navigation
-- [ ] Étape 4 — Frontend : détail produit + entrée/sortie de stock
-- [ ] Étape 5 — Frontend : formulaire création/modification
-- [ ] Étape 6 (bonus) — Dashboard + notifications locales
+- [x] Étape 3 — Frontend : écran liste + navigation + recherche + filtre catégorie
+- [x] Étape 4 — Frontend : détail produit + entrée/sortie de stock
+- [x] Étape 5 — Frontend : formulaire création/modification + suppression
+- [x] Étape 6 (bonus) — Dashboard (statistiques + graphique) + notifications locales de rupture
+
+## Notes sur les notifications locales
+
+Au lancement de l'application, si un ou plusieurs produits sont en rupture de stock (quantité à 0), le code tente d'envoyer une notification locale listant ces produits, via `expo-notifications`. En test sur Expo Go/Android (SDK 57), le module lève une erreur interne au chargement à cause d'une restriction liée aux notifications push (retirées d'Expo Go depuis le SDK 53) ; le code intercepte cette erreur avec un `try/catch` pour ne jamais faire planter l'application, mais la notification n'apparaît alors pas dans ce contexte précis. Sur un development build ou une app publiée (hors Expo Go), la fonctionnalité s'exécute normalement sans cette restriction.

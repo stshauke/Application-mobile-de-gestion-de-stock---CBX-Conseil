@@ -5,6 +5,7 @@ import { RootStackParamList } from '../types';
 import ProductListScreen from '../screens/ProductListScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 import ProductFormScreen from '../screens/ProductFormScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,11 @@ export default function AppNavigator() {
           name="ProductForm"
           component={ProductFormScreen}
           options={{ headerShown: true, title: 'Nouveau produit' }}
+        />
+        <Stack.Screen
+          name="Dashboard"
+          component={DashboardScreen}
+          options={{ headerShown: true, title: 'Tableau de bord' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

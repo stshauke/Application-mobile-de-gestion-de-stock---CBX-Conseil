@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
 import { getProducts } from '../services/api';
+import { notifyOutOfStockProducts } from '../services/notifications';
 import ProductCard from '../components/ProductCard';
 import SearchFilterBar from '../components/SearchFilterBar';
 
@@ -25,12 +26,18 @@ export default function ProductListScreen({ navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const hasNotifiedRef = useRef(false);
 
   const loadProducts = useCallback(async () => {
     try {
       setError(null);
       const data = await getProducts();
       setProducts(data);
+
+      if (!hasNotifiedRef.current) {
+        hasNotifiedRef.current = true;
+        notifyOutOfStockProducts(data).catch(() => {});
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
     } finally {
@@ -79,6 +86,18 @@ export default function ProductListScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.body}>
+        <TouchableOpacity
+          style={styles.dashboardLink}
+          onPress={() => navigation.navigate('Dashboard')}
+          activeOpacity={0.7}
+        >
+          <View style={styles.dashboardLinkLeft}>
+            <FontAwesome5 name="chart-pie" size={15} color="#0d6efd" />
+            <Text style={styles.dashboardLinkText}>Voir le tableau de bord</Text>
+          </View>
+          <FontAwesome5 name="chevron-right" size={13} color="#adb5bd" />
+        </TouchableOpacity>
+
         <SearchFilterBar
           search={search}
           onSearchChange={setSearch}
@@ -200,5 +219,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     elevation: 6,
+  },
+  dashboardLink: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+  },
+  dashboardLinkLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  dashboardLinkText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#212529',
   },
 });

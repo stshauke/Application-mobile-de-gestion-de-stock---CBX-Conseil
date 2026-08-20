@@ -16,4 +16,5 @@ export type RootStackParamList = {
   ProductList: undefined;
   ProductDetail: { productId: number };
   ProductForm: { productId?: number };
+  Dashboard: undefined;
 };
