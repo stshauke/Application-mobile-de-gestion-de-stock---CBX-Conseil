@@ -12,7 +12,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Product, RootStackParamList } from '../types';
-import { getProductById, updateStock } from '../services/api';
+import { getProductById, updateStock, deleteProduct } from '../services/api';
 import { getStockStatus, STOCK_STATUS_CONFIG } from '../utils/stockStatus';
 import StockMovementModal from '../components/StockMovementModal';
 
@@ -27,6 +27,46 @@ export default function ProductDetailScreen({ route, navigation }: Props) {
   const [modalType, setModalType] = useState<'IN' | 'OUT' | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <View style={styles.headerActions}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ProductForm', { productId })}
+            style={styles.headerButton}
+          >
+            <FontAwesome5 name="edit" size={18} color="#0d6efd" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleDelete} style={styles.headerButton}>
+            <FontAwesome5 name="trash-alt" size={18} color="#dc3545" />
+          </TouchableOpacity>
+        </View>
+      ),
+    });
+  }, [navigation, productId]);
+
+  const handleDelete = () => {
+    Alert.alert(
+      'Supprimer le produit',
+      'Cette action est irréversible. Confirmer la suppression ?',
+      [
+        { text: 'Annuler', style: 'cancel' },
+        {
+          text: 'Supprimer',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await deleteProduct(productId);
+              navigation.goBack();
+            } catch (err) {
+              Alert.alert('Erreur', err instanceof Error ? err.message : 'Erreur inconnue');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const loadProduct = useCallback(async () => {
     try {
       setError(null);
@@ -40,8 +80,9 @@ export default function ProductDetailScreen({ route, navigation }: Props) {
   }, [productId]);
 
   useEffect(() => {
-    loadProduct();
-  }, [loadProduct]);
+    const unsubscribe = navigation.addListener('focus', loadProduct);
+    return unsubscribe;
+  }, [navigation, loadProduct]);
 
   const handleStockMovement = async (quantity: number) => {
     if (!modalType) return;
@@ -155,6 +196,13 @@ function InfoRow({ icon, label, value }: { icon: string; label: string; value: s
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  headerButton: {
+    padding: 8,
+  },
   safeArea: {
     flex: 1,
     backgroundColor: '#f8f9fa',

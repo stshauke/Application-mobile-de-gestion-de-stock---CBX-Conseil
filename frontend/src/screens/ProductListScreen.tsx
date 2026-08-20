@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -112,6 +113,14 @@ export default function ProductListScreen({ navigation }: Props) {
           }
         />
       </View>
+
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('ProductForm', {})}
+        activeOpacity={0.85}
+      >
+        <FontAwesome5 name="plus" size={20} color="#ffffff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -175,5 +184,21 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#adb5bd',
     fontSize: 15,
+  },
+  fab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: '#0d6efd',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });

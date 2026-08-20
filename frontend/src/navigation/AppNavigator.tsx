@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types';
 import ProductListScreen from '../screens/ProductListScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
+import ProductFormScreen from '../screens/ProductFormScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -16,6 +17,11 @@ export default function AppNavigator() {
           name="ProductDetail"
           component={ProductDetailScreen}
           options={{ headerShown: true, title: 'Détail du produit' }}
+        />
+        <Stack.Screen
+          name="ProductForm"
+          component={ProductFormScreen}
+          options={{ headerShown: true, title: 'Nouveau produit' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
